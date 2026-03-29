@@ -127,6 +127,61 @@ Plus a **vibe-coded probability** meter — how likely someone prompted this int
 
 Vibechecked generates a 1200x630 PNG scorecard (Twitter/OG image optimized) you can post when you want to publicly shame your competitor's landing page. Saved to `./vibechecked-{domain}.png`.
 
+## CI / GitHub Action
+
+Use vibecheck as a GitHub Action to automatically review UI changes on pull requests. It posts a scorecard comment with scores, roast, and red flags.
+
+```yaml
+# .github/workflows/vibecheck.yml
+name: Vibecheck
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  vibecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: your-org/deploy-preview@main
+        id: deploy
+
+      - uses: peaktwilight/vibechecked@main
+        with:
+          url: ${{ steps.deploy.outputs.url }}
+```
+
+### Inputs
+
+| Input | Required | Default | Description |
+|-------|----------|---------|-------------|
+| `url` | Yes | — | The deployed preview URL to check |
+| `threshold` | No | `50` | Minimum overall score to pass (exits with code 1 if below) |
+
+### Threshold gate
+
+Set a minimum score to block PRs with poor design:
+
+```yaml
+- uses: peaktwilight/vibechecked@main
+  with:
+    url: ${{ steps.deploy.outputs.url }}
+    threshold: 60
+```
+
+If the overall score is below the threshold, the action fails and the check turns red.
+
+### Reusable workflow
+
+This repo also ships a reusable workflow you can call with `workflow_call`:
+
+```yaml
+jobs:
+  design-review:
+    uses: peaktwilight/vibechecked/.github/workflows/vibecheck.yml@main
+    with:
+      url: ${{ needs.deploy.outputs.preview_url }}
+```
+
 ## Development
 
 ```bash
