@@ -84,6 +84,12 @@ const verdicts = [
           Is your UI actually good? Or just another vibe-coded clone?
         </p>
 
+        <div class="animate-fade-in-up delay-300 mb-8">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-green-accent/10 border border-green-accent/20 rounded-full text-green-accent text-xs font-mono">
+            100% vibe-coded
+          </span>
+        </div>
+
         <!-- Terminal -->
         <div class="animate-fade-in-up delay-400 w-full max-w-2xl mx-auto">
           <div class="rounded-xl border border-gray-800 bg-[#111111] shadow-2xl shadow-black/50 overflow-hidden text-left">
@@ -502,6 +508,16 @@ const verdicts = [
             </div>
           </details>
 
+          <details class="group border border-gray-800 rounded-xl bg-[#111] overflow-hidden">
+            <summary class="flex items-center justify-between px-6 py-5 cursor-pointer font-mono text-sm text-gray-200 hover:text-green-accent transition-colors">
+              Was this tool vibe-coded?
+              <svg class="w-4 h-4 text-gray-600 group-open:rotate-180 transition-transform shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </summary>
+            <div class="px-6 pb-5 text-sm text-gray-400 leading-relaxed">
+              Obviously. We prompted an AI, it wrote the whole thing in a few hours, and we shipped it. The irony is not lost on us. But hey — at least we ran vibechecked on our own site. We scored... let's not talk about it.
+            </div>
+          </details>
+
         </div>
       </div>
     </section>
@@ -559,6 +575,9 @@ const verdicts = [
           Made by <a href="https://github.com/peaktwilight" target="_blank" rel="noopener" class="text-gray-400 hover:text-green-accent transition-colors">@peaktwilight</a>
           <span class="mx-2">&middot;</span>
           MIT License
+        </p>
+        <p class="text-gray-600 text-xs font-mono mt-2">
+          Yes, this tool was also vibe-coded. We contain multitudes.
         </p>
       </div>
     </footer>

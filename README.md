@@ -151,6 +151,10 @@ node dist/cli.js https://your-app.vercel.app
 3. Gets scores, a roast, red flags, and a verdict
 4. Prints a color-coded terminal scorecard + saves a shareable PNG
 
+## Full disclosure
+
+This entire tool was vibe-coded in a few hours. The irony is fully intentional.
+
 ## License
 
 MIT
