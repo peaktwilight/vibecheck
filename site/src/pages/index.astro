@@ -22,6 +22,63 @@ const redFlags = [
   { label: 'Excessive rounded corners', icon: 'circle' },
 ];
 
+const roasts = [
+  {
+    site: "supabase.com",
+    score: 30,
+    verdict: "GENERIC AF",
+    probability: 78,
+    roast: "Congrats, you built the exact same dark-mode SaaS landing page that every dev-tool startup has shipped since 2022. 'Build in a weekend, Scale to millions' — bold promise from a site that looks like it was built in a weekend using a template.",
+    scores: { originality: 32, layout: 15, typography: 45, color: 38 },
+    verdictColor: "#f97316",
+  },
+  {
+    site: "vercel.com",
+    score: 50,
+    verdict: "KINDA MID",
+    probability: 45,
+    roast: "Vercel really said 'we're the AI Cloud' and then deployed the most classic Hero → CTA → scroll-to-oblivion layout known to mankind.",
+    scores: { originality: 62, layout: 35, typography: 55, color: 58 },
+    verdictColor: "#eab308",
+  },
+  {
+    site: "notion.so",
+    score: 52,
+    verdict: "KINDA MID",
+    probability: 30,
+    roast: "Notion really said 'let's draw some clip-art coworkers with hard hats and lightbulbs so people forget we're a glorified spreadsheet.'",
+    scores: { originality: 62, layout: 35, typography: 68, color: 55 },
+    verdictColor: "#eab308",
+  },
+  {
+    site: "stripe.com",
+    score: 65,
+    verdict: "MOSTLY FRESH",
+    probability: 25,
+    roast: "Stripe's site is the final boss of 'Hero → Logos → Features' SaaS layout, but at least it has the budget to make it look expensive.",
+    scores: { originality: 72, layout: 45, typography: 78, color: 74 },
+    verdictColor: "#86efac",
+  },
+  {
+    site: "tailwindcss.com",
+    score: 68,
+    verdict: "MOSTLY FRESH",
+    probability: 18,
+    roast: "Tailwind's homepage is the web equivalent of a carpenter whose house is made of IKEA furniture — you built the tool that powers a million generic sites, yet your own layout is just Hero → Code Demo → Footer.",
+    scores: { originality: 72, layout: 55, typography: 78, color: 65 },
+    verdictColor: "#86efac",
+  },
+  {
+    site: "linear.app",
+    score: 69,
+    verdict: "MOSTLY FRESH",
+    probability: 25,
+    roast: "Linear said 'we're not like other project management tools' and then built the most tastefully dark-mode developer tool landing page you've ever seen — gorgeous, but it's becoming its own genre.",
+    scores: { originality: 72, layout: 58, typography: 78, color: 65 },
+    verdictColor: "#86efac",
+  },
+];
+
 const verdicts = [
   { label: 'CERTIFIED ORIGINAL', color: '#22c55e', bg: '#22c55e15', border: '#22c55e40' },
   { label: 'MOSTLY FRESH', color: '#86efac', bg: '#86efac15', border: '#86efac40' },
@@ -292,6 +349,55 @@ const verdicts = [
             <div class="flex-1 border-t border-dashed border-gray-800"></div>
           </div>
         </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════ HALL OF ROASTS ═══════════════ -->
+    <section class="relative py-28 px-4" id="hall-of-roasts">
+      <div class="max-w-5xl mx-auto">
+        <h2 class="font-mono text-3xl md:text-5xl font-bold text-white mb-4 text-center">
+          Hall of <span class="text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-orange-500">roasts</span>
+        </h2>
+        <p class="text-gray-500 text-center mb-12 max-w-lg mx-auto">
+          We ran vibechecked on real sites. Nobody was safe.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {roasts.map(r => (
+            <div class="group border border-gray-800 rounded-xl bg-[#111] p-5 hover:border-gray-700 transition-all duration-300">
+              <!-- Header -->
+              <div class="flex items-center justify-between mb-3">
+                <span class="font-mono text-sm text-gray-300">{r.site}</span>
+                <span class="font-mono text-2xl font-black" style={`color: ${r.verdictColor}`}>{r.score}</span>
+              </div>
+
+              <!-- Mini score bars -->
+              <div class="space-y-1.5 mb-3">
+                {Object.entries(r.scores).map(([key, val]) => (
+                  <div class="flex items-center gap-2">
+                    <span class="text-[10px] text-gray-600 w-16 text-right font-mono">{key}</span>
+                    <div class="flex-1 h-1.5 bg-gray-800 rounded-full overflow-hidden">
+                      <div class="h-full rounded-full" style={`width: ${val}%; background: ${val >= 60 ? '#22c55e' : val >= 40 ? '#eab308' : '#ef4444'}`}></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <!-- Roast -->
+              <p class="text-xs text-gray-400 italic leading-relaxed mb-3">"{r.roast}"</p>
+
+              <!-- Verdict -->
+              <div class="flex items-center justify-between">
+                <span class="font-mono text-xs font-bold" style={`color: ${r.verdictColor}`}>{r.verdict}</span>
+                <span class="text-[10px] text-gray-600 font-mono">{r.probability}% vibe-coded</span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <p class="text-center mt-8 text-gray-600 text-sm font-mono">
+          Think your site would score higher? <a href="https://github.com/peaktwilight/vibechecked" class="text-green-accent hover:underline">Run vibechecked</a> and find out.
+        </p>
       </div>
     </section>
 
