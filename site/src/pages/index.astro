@@ -405,10 +405,10 @@ const verdicts = [
         <!-- Big copy-able command -->
         <div class="relative group">
           <div class="rounded-xl border border-gray-800 bg-[#111] p-6 font-mono text-left">
-            <div class="text-gray-500 text-xs mb-3"># one-liner setup</div>
-            <div class="text-green-accent text-sm sm:text-base break-all" id="install-cmd">git clone https://github.com/peaktwilight/vibecheck && cd vibecheck && npm i && npx playwright install chromium && npm run build</div>
-            <div class="text-gray-500 text-xs mt-4 mb-1"># then roast any site</div>
-            <div class="text-white text-sm sm:text-base">node dist/cli.js https://your-site.com</div>
+            <div class="text-gray-500 text-xs mb-3"># install and run (once published)</div>
+            <div class="text-green-accent text-sm sm:text-base" id="install-cmd">npx vibechecked https://your-site.com</div>
+            <div class="text-gray-500 text-xs mt-4 mb-1"># or clone for development</div>
+            <div class="text-gray-300 text-sm">git clone https://github.com/peaktwilight/vibecheck && cd vibecheck && npm i && npm run build</div>
           </div>
           <button onclick="navigator.clipboard.writeText(document.getElementById('install-cmd').textContent); this.textContent='Copied!'; setTimeout(() => this.textContent='Copy', 2000)" class="absolute top-4 right-4 px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white text-xs font-mono rounded-lg transition-colors cursor-pointer">Copy</button>
         </div>
