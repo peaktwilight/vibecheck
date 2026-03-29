@@ -1,5 +1,6 @@
 import chalk from "chalk";
 import type { VibeCheckResult } from "./analyze.js";
+import { extractDomain } from "./image.js";
 
 const VERDICT_COLORS: Record<string, typeof chalk> = {
   "CERTIFIED ORIGINAL": chalk.green.bold,
@@ -107,6 +108,99 @@ export function printScorecard(url: string, result: VibeCheckResult): void {
   console.log(chalk.dim("\u2500".repeat(60)));
   console.log();
   console.log(`  VERDICT:  ${verdictColor(result.verdict)}`);
+  console.log();
+  console.log(chalk.dim("\u2500".repeat(60)));
+  console.log();
+}
+
+function compactBar(score: number, width: number = 12): string {
+  const filled = Math.round((score / 100) * width);
+  let color: typeof chalk;
+  if (score >= 80) color = chalk.green;
+  else if (score >= 60) color = chalk.greenBright;
+  else if (score >= 40) color = chalk.yellow;
+  else if (score >= 20) color = chalk.redBright;
+  else color = chalk.red;
+  return color("\u2588".repeat(filled));
+}
+
+export function printComparison(
+  url1: string,
+  result1: VibeCheckResult,
+  url2: string,
+  result2: VibeCheckResult
+): void {
+  const domain1 = extractDomain(url1);
+  const domain2 = extractDomain(url2);
+
+  const verdictColor1 = VERDICT_COLORS[result1.verdict] || chalk.white;
+  const verdictColor2 = VERDICT_COLORS[result2.verdict] || chalk.white;
+
+  const winner =
+    result1.scores.overall > result2.scores.overall
+      ? domain1
+      : result2.scores.overall > result1.scores.overall
+        ? domain2
+        : "TIE";
+
+  console.log();
+  console.log(chalk.dim("\u2500".repeat(60)));
+  console.log();
+  console.log(chalk.bold.white("  VIBECHECK") + chalk.dim("  \u2014  head to head"));
+  console.log();
+
+  // Domain names + overall scores
+  const col1 = 20;
+  console.log(
+    `  ${chalk.cyan(domain1.padEnd(col1))}` +
+    chalk.dim("    vs    ") +
+    `${chalk.cyan(domain2)}`
+  );
+  console.log(
+    `  ${chalk.bold(`${result1.scores.overall}/100`.padEnd(col1))}` +
+    chalk.dim("          ") +
+    `${chalk.bold(`${result2.scores.overall}/100`)}`
+  );
+  console.log();
+
+  // Category comparisons
+  const categories: { label: string; key: keyof typeof result1.scores }[] = [
+    { label: "Originality", key: "originality" },
+    { label: "Layout", key: "layout" },
+    { label: "Typography", key: "typography" },
+    { label: "Color", key: "color" },
+  ];
+
+  for (const cat of categories) {
+    const s1 = result1.scores[cat.key];
+    const s2 = result2.scores[cat.key];
+    const label = cat.label.padEnd(13);
+    const score1Str = String(s1).padStart(3);
+    const score2Str = String(s2).padStart(3);
+    console.log(
+      `  ${label}${score1Str} ${compactBar(s1)}` +
+      chalk.dim("  vs  ") +
+      `${score2Str} ${compactBar(s2)}`
+    );
+  }
+
+  console.log();
+
+  // Verdicts
+  console.log(
+    `  ${verdictColor1(result1.verdict.padEnd(col1))}` +
+    chalk.dim("          ") +
+    `${verdictColor2(result2.verdict)}`
+  );
+  console.log();
+
+  // Winner
+  if (winner === "TIE") {
+    console.log(`  ${chalk.bold.yellow("IT'S A TIE!")}`);
+  } else {
+    console.log(`  ${chalk.bold("WINNER:")} ${chalk.green.bold(winner)} \uD83C\uDFC6`);
+  }
+
   console.log();
   console.log(chalk.dim("\u2500".repeat(60)));
   console.log();
