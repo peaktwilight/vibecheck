@@ -28,6 +28,16 @@ npx vibechecked https://your-site.com
 
 That's it. No install needed — `npx` downloads and runs it in one shot.
 
+## No AI? No problem.
+
+Don't have an AI CLI installed? Use heuristic mode:
+
+```bash
+npx vibechecked --no-ai https://your-site.com
+```
+
+It analyzes color patterns, layout density, and common vibe-coded signatures. Less savage roasts, but zero dependencies.
+
 ## Usage
 
 ```bash

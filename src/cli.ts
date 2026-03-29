@@ -5,12 +5,14 @@ import ora from "ora";
 import chalk from "chalk";
 import { captureScreenshots } from "./screenshot.js";
 import { analyzeScreenshot } from "./analyze.js";
+import { analyzeHeuristic } from "./heuristic.js";
 import { printScorecard, printComparison } from "./scorecard.js";
 import { generateScorecard, extractDomain } from "./image.js";
 
 const args = process.argv.slice(2);
 const compareMode = args.includes("--compare");
 const jsonMode = args.includes("--json");
+const noAi = args.includes("--no-ai");
 
 // Filter out flags to get positional args
 const positionalArgs = args.filter(a => !a.startsWith("--"));
@@ -33,6 +35,12 @@ if (compareMode) {
     console.log(`    ${chalk.cyan("vibecheck")} ${chalk.white("<url>")}`);
     console.log(`    ${chalk.cyan("vibecheck")} ${chalk.white("--compare <url1> <url2>")}`);
     console.log(`    ${chalk.cyan("vibecheck")} ${chalk.white("--json <url>")}`);
+    console.log(`    ${chalk.cyan("vibecheck")} ${chalk.white("--no-ai <url>")}`);
+    console.log();
+    console.log(chalk.dim("  Flags:"));
+    console.log(`    ${chalk.white("--no-ai")}     Heuristic analysis only (no AI needed)`);
+    console.log(`    ${chalk.white("--compare")}   Compare two URLs head-to-head`);
+    console.log(`    ${chalk.white("--json")}      Output raw JSON`);
     console.log();
     console.log(chalk.dim("  Examples:"));
     console.log(`    ${chalk.cyan("vibecheck")} https://my-app.vercel.app`);
@@ -52,7 +60,9 @@ if (compareMode) {
 async function captureAndAnalyze(rawUrl: string) {
   const normalizedUrl = rawUrl.startsWith("http") ? rawUrl : `https://${rawUrl}`;
   const screenshots = await captureScreenshots(normalizedUrl);
-  const result = await analyzeScreenshot(screenshots.viewport);
+  const result = noAi
+    ? analyzeHeuristic(screenshots.viewport)
+    : await analyzeScreenshot(screenshots.viewport);
   return { url: normalizedUrl, result };
 }
 
@@ -94,12 +104,20 @@ async function runSingle(normalizedUrl: string): Promise<void> {
     return process.exit(1);
   }
 
-  const analyzeSpinner = ora({ text: "Analyzing design...", color: "magenta" }).start();
+  const analyzeSpinner = ora({
+    text: noAi ? "Running heuristic analysis..." : "Analyzing design...",
+    color: "magenta",
+  }).start();
 
   let result: Awaited<ReturnType<typeof analyzeScreenshot>>;
   try {
-    result = await analyzeScreenshot(screenshots.viewport);
-    analyzeSpinner.succeed("Analysis complete");
+    if (noAi) {
+      result = analyzeHeuristic(screenshots.viewport);
+      analyzeSpinner.succeed("Heuristic analysis complete (no AI)");
+    } else {
+      result = await analyzeScreenshot(screenshots.viewport);
+      analyzeSpinner.succeed("Analysis complete");
+    }
   } catch (err) {
     analyzeSpinner.fail(`Analysis failed: ${(err as Error).message}`);
     return process.exit(1);
