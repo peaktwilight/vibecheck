@@ -1,0 +1,131 @@
+name: Vibecheck PR Review
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - "**.html"
+      - "**.css"
+      - "**.tsx"
+      - "**.jsx"
+      - "**.vue"
+      - "**.svelte"
+      - "**.astro"
+      - "src/pages/**"
+      - "src/components/**"
+      - "public/**"
+      - "app/**"
+  workflow_call:
+    inputs:
+      url:
+        description: "The deployed preview URL to check"
+        required: true
+        type: string
+
+permissions:
+  pull-requests: write
+
+jobs:
+  vibecheck:
+    name: Vibecheck Scorecard
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: Install Playwright dependencies
+        run: npx playwright install --with-deps chromium
+
+      - name: Run vibecheck
+        id: vibecheck
+        env:
+          URL: ${{ inputs.url }}
+        run: |
+          set -euo pipefail
+          OUTPUT=$(npx vibechecked --json "$URL" 2>/dev/null)
+
+          # Parse fields from JSON
+          OVERALL=$(echo "$OUTPUT" | jq -r '.scores.overall')
+          ORIGINALITY=$(echo "$OUTPUT" | jq -r '.scores.originality')
+          LAYOUT=$(echo "$OUTPUT" | jq -r '.scores.layout')
+          TYPOGRAPHY=$(echo "$OUTPUT" | jq -r '.scores.typography')
+          COLOR=$(echo "$OUTPUT" | jq -r '.scores.color')
+          VIBE_PROB=$(echo "$OUTPUT" | jq -r '.vibe_coded_probability')
+          VERDICT=$(echo "$OUTPUT" | jq -r '.verdict')
+
+          # Build lists
+          RED_FLAGS=$(echo "$OUTPUT" | jq -r '(.red_flags // []) | map("- " + .) | join("\n")')
+          GOOD_PARTS=$(echo "$OUTPUT" | jq -r '(.good_parts // []) | map("- " + .) | join("\n")')
+
+          # Store scalar outputs
+          {
+            echo "overall=$OVERALL"
+            echo "originality=$ORIGINALITY"
+            echo "layout=$LAYOUT"
+            echo "typography=$TYPOGRAPHY"
+            echo "color=$COLOR"
+            echo "vibe_prob=$VIBE_PROB"
+            echo "verdict=$VERDICT"
+          } >> "$GITHUB_OUTPUT"
+
+          # Store multiline outputs with heredoc delimiters
+          {
+            echo "roast<<ROAST_EOF"
+            echo "$OUTPUT" | jq -r '.roast'
+            echo "ROAST_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+          {
+            echo "red_flags<<RF_EOF"
+            echo "$RED_FLAGS"
+            echo "RF_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+          {
+            echo "good_parts<<GP_EOF"
+            echo "$GOOD_PARTS"
+            echo "GP_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Find existing comment
+        uses: peter-evans/find-comment@v3
+        id: find-comment
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: "github-actions[bot]"
+          body-includes: "<!-- vibecheck-scorecard -->"
+
+      - name: Post or update PR comment
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          comment-id: ${{ steps.find-comment.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          edit-mode: replace
+          body: |
+            <!-- vibecheck-scorecard -->
+            ## Vibecheck Scorecard
+
+            **Overall: ${{ steps.vibecheck.outputs.overall }}/100** — _${{ steps.vibecheck.outputs.verdict }}_
+
+            | Dimension | Score |
+            |-----------|-------|
+            | Originality | ${{ steps.vibecheck.outputs.originality }}/100 |
+            | Layout | ${{ steps.vibecheck.outputs.layout }}/100 |
+            | Typography | ${{ steps.vibecheck.outputs.typography }}/100 |
+            | Color | ${{ steps.vibecheck.outputs.color }}/100 |
+
+            **Vibe-coded probability:** ${{ steps.vibecheck.outputs.vibe_prob }}%
+
+            ### The Roast
+            > ${{ steps.vibecheck.outputs.roast }}
+
+            ### Red Flags
+            ${{ steps.vibecheck.outputs.red_flags }}
+
+            ### Good Parts
+            ${{ steps.vibecheck.outputs.good_parts }}
+
+            ---
+            _Posted by [vibechecked](https://github.com/peaktwilight/vibecheck) · [npm](https://www.npmjs.com/package/vibechecked)_

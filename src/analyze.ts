@@ -18,6 +18,8 @@ export interface VibeCheckResult {
   red_flags: string[];
   good_parts: string[];
   verdict: string;
+  savage_rating?: number;
+  tweet?: string;
 }
 
 const PROMPT = `You are VIBECHECK — a brutally honest UI design critic who roasts websites.
@@ -66,13 +68,26 @@ Be SPECIFIC about what you see. Don't be generic in your roast — reference act
 
 Look at the attached screenshot and analyze it. Respond with ONLY the JSON object.`;
 
-export async function analyzeScreenshot(screenshotBuffer: Buffer): Promise<VibeCheckResult> {
+const ROAST_PROMPT_EXTRA = `
+
+YOU ARE IN MAXIMUM ROAST MODE. Be absolutely brutal. No mercy. Hold nothing back.
+
+Your roast should be 3-4 sentences of pure devastation. Think "comedy central roast" meets "Gordon Ramsay looking at a microwave dinner." Be specific about what you see — call out exact colors, fonts, layouts, and copy. Make it personal.
+
+In addition to the standard fields, you MUST also include:
+- "savage_rating": a number from 1-10 rating how truly awful this site is (10 = crime against design)
+- "tweet": a ready-to-copy tweet roasting this site in under 280 characters. Make it viral-worthy. Include the site name if visible.
+
+The roast field should be MUCH more savage than normal. Think: devastating, quotable, screenshot-worthy burns.`;
+
+export async function analyzeScreenshot(screenshotBuffer: Buffer, roastMode: boolean = false): Promise<VibeCheckResult> {
   // Write screenshot to a temp file so claude can read it
   const tmpPath = join(tmpdir(), `vibecheck-${Date.now()}.png`);
   writeFileSync(tmpPath, screenshotBuffer);
 
   try {
-    const fullPrompt = `Read the screenshot at ${tmpPath} and analyze it.\n\n${PROMPT}`;
+    const promptText = roastMode ? PROMPT + ROAST_PROMPT_EXTRA : PROMPT;
+    const fullPrompt = `Read the screenshot at ${tmpPath} and analyze it.\n\n${promptText}`;
     const result = await new Promise<string>((resolve, reject) => {
       execFile(
         "claude",

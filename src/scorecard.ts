@@ -113,6 +113,93 @@ export function printScorecard(url: string, result: VibeCheckResult): void {
   console.log();
 }
 
+export function printRoast(url: string, result: VibeCheckResult): void {
+  const verdictColor = VERDICT_COLORS[result.verdict] || chalk.white;
+
+  console.log();
+  console.log(chalk.red(`  ${"=".repeat(56)}
+
+   ██████   ██████   █████  ███████ ████████ ███████ ██████
+   ██   ██ ██    ██ ██   ██ ██         ██    ██      ██   ██
+   ██████  ██    ██ ███████ ███████    ██    █████   ██   ██
+   ██   ██ ██    ██ ██   ██      ██    ██    ██      ██   ██
+   ██   ██  ██████  ██   ██ ███████    ██    ███████ ██████
+
+  ${"=".repeat(56)}`));
+  console.log();
+
+  // Giant score
+  const score = result.scores.overall;
+  let scoreColor: typeof chalk;
+  if (score >= 60) scoreColor = chalk.green;
+  else if (score >= 40) scoreColor = chalk.yellow;
+  else scoreColor = chalk.red;
+
+  console.log(chalk.dim("  URL: ") + chalk.cyan(url));
+  console.log();
+  console.log(scoreColor.bold(`  OVERALL SCORE: ${score}/100`));
+  console.log();
+
+  // Savage rating as fire emojis
+  const savageRating = result.savage_rating ?? 5;
+  const fires = "\uD83D\uDD25".repeat(savageRating);
+  const emptyFires = chalk.dim("\u25CB").repeat(10 - savageRating);
+  console.log(chalk.red.bold(`  SAVAGE RATING: ${fires}${emptyFires}  (${savageRating}/10)`));
+  console.log();
+
+  // The roast - big and prominent
+  console.log(chalk.red("  " + "\u2500".repeat(56)));
+  console.log();
+  console.log(chalk.white.bold("  THE ROAST:"));
+  console.log();
+
+  // Word-wrap the roast at ~52 chars for visual impact
+  const roastWords = result.roast.split(" ");
+  let line = "  ";
+  for (const word of roastWords) {
+    if (line.length + word.length + 1 > 56) {
+      console.log(chalk.yellow.bold.italic(line));
+      line = "  " + word;
+    } else {
+      line += (line.length > 2 ? " " : "") + word;
+    }
+  }
+  if (line.trim()) console.log(chalk.yellow.bold.italic(line));
+  console.log();
+
+  // Tweet
+  if (result.tweet) {
+    console.log(chalk.red("  " + "\u2500".repeat(56)));
+    console.log();
+    console.log(chalk.white.bold("  \uD83D\uDCCB COPY THIS TWEET:"));
+    console.log();
+    console.log(chalk.cyan(`  ${result.tweet}`));
+    console.log();
+  }
+
+  // Red flags - dramatic
+  if (result.red_flags?.length) {
+    console.log(chalk.red("  " + "\u2500".repeat(56)));
+    console.log();
+    console.log(chalk.red.bold("  \uD83D\uDEA9 RED FLAGS:"));
+    console.log();
+    for (const flag of result.red_flags) {
+      console.log(chalk.red(`  \u26A0\uFE0F  ${flag}`));
+    }
+    console.log();
+  }
+
+  // Verdict - big and bold
+  console.log(chalk.red("  " + "\u2500".repeat(56)));
+  console.log();
+  console.log(chalk.white.bold("  VERDICT:"));
+  console.log();
+  console.log(`  ${verdictColor(`  >>> ${result.verdict} <<<  `)}`);
+  console.log();
+  console.log(chalk.red("  " + "=".repeat(56)));
+  console.log();
+}
+
 function compactBar(score: number, width: number = 12): string {
   const filled = Math.round((score / 100) * width);
   let color: typeof chalk;
@@ -122,6 +209,69 @@ function compactBar(score: number, width: number = 12): string {
   else if (score >= 20) color = chalk.redBright;
   else color = chalk.red;
   return color("\u2588".repeat(filled));
+}
+
+export interface BatchEntry {
+  url: string;
+  result?: VibeCheckResult;
+  error?: string;
+}
+
+export function printLeaderboard(entries: BatchEntry[]): void {
+  const successful = entries.filter((e): e is BatchEntry & { result: VibeCheckResult } => !!e.result);
+  const failed = entries.filter(e => !!e.error);
+
+  // Sort by overall score descending
+  successful.sort((a, b) => b.result.scores.overall - a.result.scores.overall);
+
+  console.log();
+  console.log(chalk.dim("\u2500".repeat(60)));
+  console.log();
+  console.log(chalk.bold.white("  VIBECHECK LEADERBOARD"));
+  console.log();
+  console.log(chalk.dim("\u2500".repeat(60)));
+  console.log();
+
+  for (let i = 0; i < successful.length; i++) {
+    const entry = successful[i];
+    const rank = i + 1;
+    const medal = rank === 1 ? "\uD83E\uDD47" : rank === 2 ? "\uD83E\uDD48" : rank === 3 ? "\uD83E\uDD49" : "  ";
+    const rankStr = `#${rank}`.padStart(3);
+    const domain = extractDomain(entry.url);
+    const score = entry.result.scores.overall;
+    const verdict = entry.result.verdict;
+    const verdictColor = VERDICT_COLORS[verdict] || chalk.white;
+
+    console.log(
+      `  ${medal} ${chalk.bold(rankStr)}  ${chalk.cyan(domain.padEnd(30))} ${bar(score, 15)}  ${verdictColor(verdict)}`
+    );
+  }
+
+  console.log();
+  console.log(chalk.dim("\u2500".repeat(60)));
+  console.log();
+
+  // Summary stats
+  const totalScanned = entries.length;
+  const avgScore = successful.length > 0
+    ? Math.round(successful.reduce((sum, e) => sum + e.result.scores.overall, 0) / successful.length)
+    : 0;
+
+  console.log(`  ${chalk.dim("Sites scanned:")} ${chalk.bold(String(totalScanned))}`);
+  console.log(`  ${chalk.dim("Average score:")} ${chalk.bold(String(avgScore))}/100`);
+
+  if (failed.length > 0) {
+    console.log();
+    console.log(chalk.bold.red("  FAILED"));
+    console.log();
+    for (const entry of failed) {
+      console.log(`  ${chalk.red("\u2716")}  ${chalk.cyan(entry.url)} ${chalk.dim("\u2014")} ${chalk.red(entry.error || "Unknown error")}`);
+    }
+  }
+
+  console.log();
+  console.log(chalk.dim("\u2500".repeat(60)));
+  console.log();
 }
 
 export function printComparison(
