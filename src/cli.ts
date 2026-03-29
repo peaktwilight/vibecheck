@@ -10,7 +10,7 @@ const url = process.argv[2];
 
 if (!url) {
   console.log();
-  console.log(chalk.bold("  vibecheck") + chalk.dim(" — is your UI actually good?"));
+  console.log(chalk.bold("  vibecheck") + chalk.dim(" \u2014 is your UI actually good?"));
   console.log();
   console.log(chalk.dim("  Usage:"));
   console.log(`    ${chalk.cyan("vibecheck")} ${chalk.white("<url>")}`);
@@ -26,33 +26,33 @@ if (!url) {
 // Normalize URL
 const normalizedUrl = url.startsWith("http") ? url : `https://${url}`;
 
-async function run() {
+async function run(): Promise<void> {
   const spinner = ora({ text: "Capturing screenshot...", color: "cyan" }).start();
 
-  let screenshots;
+  let screenshots: Awaited<ReturnType<typeof captureScreenshots>>;
   try {
     screenshots = await captureScreenshots(normalizedUrl);
     spinner.succeed("Screenshot captured");
   } catch (err) {
-    spinner.fail(`Failed to capture screenshot: ${err.message}`);
-    process.exit(1);
+    spinner.fail(`Failed to capture screenshot: ${(err as Error).message}`);
+    return process.exit(1);
   }
 
   const analyzeSpinner = ora({ text: "Analyzing design...", color: "magenta" }).start();
 
-  let result;
+  let result: Awaited<ReturnType<typeof analyzeScreenshot>>;
   try {
     result = await analyzeScreenshot(screenshots.viewport);
     analyzeSpinner.succeed("Analysis complete");
   } catch (err) {
-    analyzeSpinner.fail(`Analysis failed: ${err.message}`);
-    process.exit(1);
+    analyzeSpinner.fail(`Analysis failed: ${(err as Error).message}`);
+    return process.exit(1);
   }
 
   printScorecard(normalizedUrl, result);
 }
 
-run().catch((err) => {
+run().catch((err: Error) => {
   console.error(chalk.red(`\nError: ${err.message}`));
   process.exit(1);
 });

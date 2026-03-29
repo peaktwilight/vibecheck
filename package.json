@@ -4,10 +4,12 @@
   "description": "Paste a URL, get a UI roast. Detect if your app looks like every other vibe-coded project.",
   "type": "module",
   "bin": {
-    "vibecheck": "./src/cli.js"
+    "vibecheck": "./dist/cli.js"
   },
   "scripts": {
-    "start": "node src/cli.js"
+    "build": "tsc",
+    "prepublishOnly": "npm run build",
+    "start": "node dist/cli.js"
   },
   "keywords": [
     "vibecheck",
@@ -23,5 +25,9 @@
     "chalk": "^5.6.2",
     "ora": "^9.3.0",
     "playwright": "^1.58.2"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "typescript": "^6.0.2"
   }
 }

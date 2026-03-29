@@ -3,6 +3,23 @@ import { writeFileSync, unlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
+export interface VibeCheckScores {
+  originality: number;
+  layout: number;
+  typography: number;
+  color: number;
+  overall: number;
+}
+
+export interface VibeCheckResult {
+  scores: VibeCheckScores;
+  vibe_coded_probability: number;
+  roast: string;
+  red_flags: string[];
+  good_parts: string[];
+  verdict: string;
+}
+
 const PROMPT = `You are VIBECHECK — a brutally honest UI design critic who roasts websites.
 You analyze screenshots and score them on how generic / "vibe-coded" they look.
 
@@ -49,19 +66,19 @@ Be SPECIFIC about what you see. Don't be generic in your roast — reference act
 
 Look at the attached screenshot and analyze it. Respond with ONLY the JSON object.`;
 
-export async function analyzeScreenshot(screenshotBuffer) {
+export async function analyzeScreenshot(screenshotBuffer: Buffer): Promise<VibeCheckResult> {
   // Write screenshot to a temp file so claude can read it
   const tmpPath = join(tmpdir(), `vibecheck-${Date.now()}.png`);
   writeFileSync(tmpPath, screenshotBuffer);
 
   try {
     const fullPrompt = `Read the screenshot at ${tmpPath} and analyze it.\n\n${PROMPT}`;
-    const result = await new Promise((resolve, reject) => {
+    const result = await new Promise<string>((resolve, reject) => {
       execFile(
         "claude",
         ["-p", fullPrompt, "--output-format", "json", "--allowedTools", "Read"],
         { maxBuffer: 1024 * 1024, timeout: 120000 },
-        (err, stdout, stderr) => {
+        (err: Error | null, stdout: string, _stderr: string) => {
           if (err) return reject(new Error(`claude CLI failed: ${err.message}`));
           try {
             const parsed = JSON.parse(stdout);
@@ -75,7 +92,7 @@ export async function analyzeScreenshot(screenshotBuffer) {
 
     // result is the text response from claude — extract JSON from it
     // Claude might wrap it in markdown fences or add text around it
-    let jsonStr = typeof result === "object" ? JSON.stringify(result) : result;
+    let jsonStr: string = typeof result === "object" ? JSON.stringify(result) : result;
 
     // Try to find a JSON object in the response
     const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
@@ -83,7 +100,7 @@ export async function analyzeScreenshot(screenshotBuffer) {
       jsonStr = jsonMatch[0];
     }
 
-    return JSON.parse(jsonStr);
+    return JSON.parse(jsonStr) as VibeCheckResult;
   } finally {
     try { unlinkSync(tmpPath); } catch {}
   }

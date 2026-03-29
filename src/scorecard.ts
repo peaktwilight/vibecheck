@@ -1,6 +1,7 @@
 import chalk from "chalk";
+import type { VibeCheckResult } from "./analyze.js";
 
-const VERDICT_COLORS = {
+const VERDICT_COLORS: Record<string, typeof chalk> = {
   "CERTIFIED ORIGINAL": chalk.green.bold,
   "MOSTLY FRESH": chalk.greenBright,
   "KINDA MID": chalk.yellow,
@@ -8,11 +9,11 @@ const VERDICT_COLORS = {
   "VIBE-CODED CLONE": chalk.red.bold,
 };
 
-function bar(score, width = 20) {
+function bar(score: number, width: number = 20): string {
   const filled = Math.round((score / 100) * width);
   const empty = width - filled;
 
-  let color;
+  let color: typeof chalk;
   if (score >= 80) color = chalk.green;
   else if (score >= 60) color = chalk.greenBright;
   else if (score >= 40) color = chalk.yellow;
@@ -22,13 +23,13 @@ function bar(score, width = 20) {
   return color("\u2588".repeat(filled)) + chalk.gray("\u2591".repeat(empty)) + " " + color.bold(`${score}`);
 }
 
-function vibeCodedMeter(probability) {
+function vibeCodedMeter(probability: number): string {
   const width = 30;
   const filled = Math.round((probability / 100) * width);
   const empty = width - filled;
 
-  let color;
-  let label;
+  let color: typeof chalk;
+  let label: string;
   if (probability >= 80) { color = chalk.red; label = "DEFINITELY VIBE-CODED"; }
   else if (probability >= 60) { color = chalk.redBright; label = "PROBABLY VIBE-CODED"; }
   else if (probability >= 40) { color = chalk.yellow; label = "POSSIBLY VIBE-CODED"; }
@@ -38,7 +39,7 @@ function vibeCodedMeter(probability) {
   return color("\u2588".repeat(filled)) + chalk.gray("\u2591".repeat(empty)) + " " + color.bold(`${probability}%`) + " " + chalk.dim(label);
 }
 
-export function printScorecard(url, result) {
+export function printScorecard(url: string, result: VibeCheckResult): void {
   const verdictColor = VERDICT_COLORS[result.verdict] || chalk.white;
 
   console.log();

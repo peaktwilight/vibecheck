@@ -1,10 +1,14 @@
 import { chromium } from "playwright";
 
+export interface Screenshots {
+  viewport: Buffer;
+  full: Buffer;
+}
+
 /**
  * Capture viewport + full-page screenshots of a URL.
- * Returns { viewport: Buffer, full: Buffer }
  */
-export async function captureScreenshots(url) {
+export async function captureScreenshots(url: string): Promise<Screenshots> {
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({
     viewport: { width: 1440, height: 900 },
