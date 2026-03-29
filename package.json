@@ -1,10 +1,10 @@
 {
   "name": "vibechecked",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Paste a URL, get a UI roast. Detect if your app looks like every other vibe-coded project.",
   "type": "module",
   "bin": {
-    "vibecheck": "./dist/cli.js"
+    "vibechecked": "./dist/cli.js"
   },
   "scripts": {
     "build": "tsc",
