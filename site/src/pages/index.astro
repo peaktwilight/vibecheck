@@ -256,43 +256,368 @@ const verdicts = [
 
     <!-- ═══════════════ TRY IT ═══════════════ -->
     <section id="try-it" class="relative py-24 px-4">
-      <div class="max-w-xl mx-auto text-center">
-        <h2 class="font-mono text-3xl sm:text-4xl font-bold text-white mb-6">
-          Think YOUR site would <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-500">pass</span>?
-        </h2>
-        <div class="flex gap-2">
+      <div class="max-w-2xl mx-auto">
+        <div class="text-center mb-8">
+          <h2 class="font-mono text-3xl sm:text-4xl font-bold text-white mb-4">
+            Think YOUR site would <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-500">pass</span>?
+          </h2>
+          <p class="text-gray-500 text-sm">Paste a URL and get an instant vibe check.</p>
+        </div>
+
+        <!-- Input form -->
+        <div class="flex gap-2 mb-2">
           <input
-            type="text"
+            type="url"
             id="url-input"
-            placeholder="https://your-site.com"
-            class="bg-[#111] border border-gray-800 rounded-lg px-4 py-3 font-mono text-sm flex-1 focus:border-green-accent focus:outline-none text-gray-200"
+            placeholder="https://your-app.vercel.app"
+            class="bg-[#111] border border-gray-800 rounded-lg px-4 py-3 font-mono text-sm flex-1 focus:border-green-accent focus:outline-none text-gray-200 placeholder:text-gray-600"
           />
           <button
             id="check-btn"
-            class="bg-green-accent text-black font-mono font-bold px-6 py-3 rounded-lg hover:bg-green-400 transition-colors cursor-pointer shrink-0"
+            class="bg-green-accent text-black font-mono font-bold px-6 py-3 rounded-lg hover:bg-green-400 transition-colors cursor-pointer shrink-0 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Check
+            <span id="btn-text">Check Vibe</span>
+            <svg id="btn-spinner" class="hidden w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
           </button>
         </div>
-        <p id="jk-text" class="text-gray-600 text-xs mt-3 opacity-0 transition-all duration-500 translate-y-2">
-          Just kidding — it runs locally. Run <code class="text-green-accent">npx vibechecked</code> or <a href="https://github.com/peaktwilight/vibechecked" target="_blank" rel="noopener" class="text-green-accent hover:underline">clone the repo</a> and roast yourself.
-        </p>
+
+        <!-- Loading state -->
+        <div id="loading-state" class="hidden mt-8">
+          <div class="rounded-xl border border-gray-800 bg-[#111111] overflow-hidden">
+            <div class="flex items-center gap-2 px-4 py-2.5 bg-[#0d0d0d] border-b border-gray-800">
+              <div class="flex items-center gap-1.5">
+                <div class="w-2.5 h-2.5 rounded-full bg-[#ff5f57]"></div>
+                <div class="w-2.5 h-2.5 rounded-full bg-[#febc2e]"></div>
+                <div class="w-2.5 h-2.5 rounded-full bg-[#28c840]"></div>
+              </div>
+              <div class="flex-1 mx-8">
+                <div class="bg-[#1a1a1a] rounded-md px-3 py-1 text-center">
+                  <span class="text-[10px] text-gray-500 font-mono" id="loading-url">analyzing...</span>
+                </div>
+              </div>
+            </div>
+            <div class="p-6 font-mono text-sm text-center">
+              <div class="flex flex-col items-center gap-3">
+                <svg class="w-8 h-8 animate-spin text-green-accent" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <div class="space-y-1">
+                  <p class="text-gray-400 text-xs" id="loading-step">Capturing screenshot...</p>
+                  <p class="text-gray-600 text-[10px]">Running AI analysis</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Results card -->
+        <div id="results-card" class="hidden mt-8">
+          <div class="rounded-xl border border-gray-800 bg-[#111111] shadow-2xl shadow-black/50 overflow-hidden">
+            <!-- Terminal header -->
+            <div class="flex items-center gap-2 px-4 py-2.5 bg-[#0d0d0d] border-b border-gray-800">
+              <div class="flex items-center gap-1.5">
+                <div class="w-2.5 h-2.5 rounded-full bg-[#ff5f57]"></div>
+                <div class="w-2.5 h-2.5 rounded-full bg-[#febc2e]"></div>
+                <div class="w-2.5 h-2.5 rounded-full bg-[#28c840]"></div>
+              </div>
+              <div class="flex-1 mx-8">
+                <div class="bg-[#1a1a1a] rounded-md px-3 py-1 text-center">
+                  <span class="text-[10px] text-gray-500 font-mono" id="result-url-header">vibechecked</span>
+                </div>
+              </div>
+              <div class="w-[52px]"></div>
+            </div>
+
+            <!-- Terminal body -->
+            <div class="p-3 sm:p-6 font-mono text-[11px] sm:text-sm leading-relaxed space-y-3">
+              <!-- Command echo -->
+              <div class="text-gray-500">
+                <span class="text-green-accent">$</span> npx vibechecked <span id="result-url-echo" class="text-gray-300"></span>
+              </div>
+
+              <!-- Screenshot preview -->
+              <div id="screenshot-wrap" class="hidden rounded-lg overflow-hidden border border-gray-800 mb-2">
+                <img id="screenshot-img" class="w-full h-auto" alt="Screenshot preview" />
+              </div>
+
+              <!-- Score bars -->
+              <div class="space-y-2 pt-2" id="score-bars"></div>
+
+              <!-- Roast -->
+              <div class="pt-3 border-t border-gray-800/50">
+                <span class="text-gray-600 text-xs">ROAST:</span>
+                <p class="text-gray-300 text-xs mt-1 leading-relaxed italic" id="result-roast"></p>
+              </div>
+
+              <!-- Verdict -->
+              <div class="flex items-center gap-3 pt-2">
+                <span class="text-gray-600 text-xs">VERDICT:</span>
+                <span class="font-bold text-sm tracking-wider" id="result-verdict"></span>
+              </div>
+
+              <!-- Vibe-coded probability -->
+              <div class="flex items-center gap-3">
+                <span class="text-gray-600 text-xs">VIBE-CODED:</span>
+                <span class="text-sm" id="result-probability"></span>
+                <div class="flex-1 h-1.5 bg-gray-800 rounded-full overflow-hidden">
+                  <div class="h-full rounded-full transition-all duration-1000 ease-out" id="result-probability-bar" style="width: 0%"></div>
+                </div>
+              </div>
+
+              <!-- Red flags -->
+              <div class="pt-2 border-t border-gray-800/50">
+                <span class="text-gray-600 text-xs">RED FLAGS:</span>
+                <div class="flex flex-wrap gap-1.5 mt-1.5" id="result-flags"></div>
+              </div>
+
+              <!-- Cursor -->
+              <div class="pt-1">
+                <span class="text-green-accent">$</span>
+                <span class="inline-block w-2 h-4 bg-green-accent ml-1 animate-blink"></span>
+              </div>
+            </div>
+
+            <!-- Disclaimer bar -->
+            <div class="px-4 sm:px-6 py-3 bg-[#0d0d0d] border-t border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-2">
+              <p class="text-[10px] text-gray-600 font-mono">
+                Demo preview with simulated scores. Install the CLI for real AI-powered analysis.
+              </p>
+              <code class="text-[10px] text-green-accent font-mono bg-green-accent/10 px-2 py-0.5 rounded">npx vibechecked &lt;url&gt;</code>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
     <script>
-      document.getElementById('check-btn')?.addEventListener('click', () => {
-        const jk = document.getElementById('jk-text');
-        if (jk) {
-          jk.style.opacity = '1';
-          jk.style.transform = 'translateY(0)';
+    (function() {
+      // --- Deterministic hash from string ---
+      function hashStr(str) {
+        let h = 0;
+        for (let i = 0; i < str.length; i++) {
+          h = ((h << 5) - h + str.charCodeAt(i)) | 0;
         }
-      });
-      document.getElementById('url-input')?.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-          document.getElementById('check-btn')?.click();
+        return Math.abs(h);
+      }
+
+      // --- Seeded pseudo-random (mulberry32) ---
+      function seededRandom(seed) {
+        let s = seed;
+        return function() {
+          s |= 0; s = (s + 0x6D2B79F5) | 0;
+          let t = Math.imul(s ^ (s >>> 15), 1 | s);
+          t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+
+      // --- Generate mock results from URL ---
+      function generateResults(url) {
+        const seed = hashStr(url);
+        const rand = seededRandom(seed);
+
+        const originality = Math.floor(rand() * 60 + 20);
+        const layout = Math.floor(rand() * 60 + 15);
+        const typography = Math.floor(rand() * 55 + 25);
+        const color = Math.floor(rand() * 55 + 25);
+        const overall = Math.floor((originality + layout + typography + color) / 4);
+        const probability = Math.floor(rand() * 70 + 10);
+
+        const scores = [
+          { label: 'Originality', value: originality },
+          { label: 'Layout', value: layout },
+          { label: 'Typography', value: typography },
+          { label: 'Color', value: color },
+          { label: 'Overall', value: overall },
+        ];
+
+        let verdict, verdictColor;
+        if (overall >= 75) { verdict = 'CERTIFIED ORIGINAL'; verdictColor = '#22c55e'; }
+        else if (overall >= 60) { verdict = 'MOSTLY FRESH'; verdictColor = '#86efac'; }
+        else if (overall >= 45) { verdict = 'KINDA MID'; verdictColor = '#eab308'; }
+        else if (overall >= 30) { verdict = 'GENERIC AF'; verdictColor = '#f97316'; }
+        else { verdict = 'VIBE-CODED CLONE'; verdictColor = '#ef4444'; }
+
+        const allFlags = [
+          'Purple gradients', 'Glassmorphism', 'Hero > Features > Pricing',
+          'Gradient text', '"Trusted by" logo bars', '3-column feature cards',
+          'Floating angled mockups', 'Dark mode + neon accents', 'Excessive rounded corners',
+          'Stock illustrations', 'Infinite scroll'
+        ];
+        const flagCount = Math.floor(rand() * 4 + 1);
+        const flags = [];
+        const shuffled = [...allFlags];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          const j = Math.floor(rand() * (i + 1));
+          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
         }
+        for (let i = 0; i < flagCount; i++) flags.push(shuffled[i]);
+
+        const domain = url.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+        const roasts = [
+          `"${domain} really said 'we're different' and then shipped the exact same Hero > CTA > scroll-forever layout as every other site on Product Hunt this week."`,
+          `"${domain} looks like someone typed 'modern SaaS landing page' into an AI image generator and then recreated it pixel by pixel in Tailwind."`,
+          `"${domain} has that 'I watched one YouTube tutorial on web design and now I'm a senior designer' energy. The gradients are doing a lot of heavy lifting here."`,
+          `"${domain} is what happens when you tell an AI to make a landing page and then never question any of its decisions. Bold strategy."`,
+          `"${domain} proves that with enough drop shadows and rounded corners, you can make absolutely anything look like a fintech startup."`,
+          `"${domain} screams 'we spent more time on the gradient than on the value proposition.' The hero section alone has more CSS than some entire applications."`,
+          `"${domain} — where every section break is a gradient divider and every icon is from the same Lucide pack. At least be inconsistent about it."`,
+        ];
+        const roastIdx = Math.floor(rand() * roasts.length);
+
+        return { scores, verdict, verdictColor, probability, flags, roast: roasts[roastIdx] };
+      }
+
+      function scoreColor(val) {
+        if (val >= 70) return '#22c55e';
+        if (val >= 50) return '#eab308';
+        return '#ef4444';
+      }
+
+      function normalizeUrl(input) {
+        let url = input.trim();
+        if (!url) return null;
+        if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+        try { new URL(url); } catch { return null; }
+        return url;
+      }
+
+      const urlInput = document.getElementById('url-input');
+      const checkBtn = document.getElementById('check-btn');
+      const btnText = document.getElementById('btn-text');
+      const btnSpinner = document.getElementById('btn-spinner');
+      const loadingState = document.getElementById('loading-state');
+      const loadingUrl = document.getElementById('loading-url');
+      const loadingStep = document.getElementById('loading-step');
+      const resultsCard = document.getElementById('results-card');
+
+      async function runCheck() {
+        const url = normalizeUrl(urlInput.value);
+        if (!url) {
+          urlInput.style.borderColor = '#ef4444';
+          setTimeout(() => urlInput.style.borderColor = '', 1500);
+          return;
+        }
+
+        // Show loading
+        checkBtn.disabled = true;
+        btnText.textContent = 'Checking...';
+        btnSpinner.classList.remove('hidden');
+        resultsCard.classList.add('hidden');
+        loadingState.classList.remove('hidden');
+        loadingUrl.textContent = url.replace(/^https?:\/\//, '');
+
+        const steps = ['Capturing screenshot...', 'Analyzing layout patterns...', 'Detecting red flags...', 'Generating roast...'];
+        let stepIdx = 0;
+        const stepInterval = setInterval(() => {
+          stepIdx++;
+          if (stepIdx < steps.length) loadingStep.textContent = steps[stepIdx];
+        }, 600);
+
+        // Try to load screenshot
+        const domain = url.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+        const screenshotUrl = 'https://image.thum.io/get/width/1440/crop/900/' + url;
+
+        // Wait for "analysis" (simulated delay)
+        await new Promise(r => setTimeout(r, 2400));
+        clearInterval(stepInterval);
+
+        // Generate results
+        const results = generateResults(url);
+
+        // Hide loading, show results
+        loadingState.classList.add('hidden');
+
+        // Populate results
+        document.getElementById('result-url-header').textContent = domain;
+        document.getElementById('result-url-echo').textContent = url;
+
+        // Screenshot
+        const ssWrap = document.getElementById('screenshot-wrap');
+        const ssImg = document.getElementById('screenshot-img');
+        ssImg.src = screenshotUrl;
+        ssImg.onerror = () => ssWrap.classList.add('hidden');
+        ssImg.onload = () => ssWrap.classList.remove('hidden');
+        ssWrap.classList.remove('hidden');
+
+        // Score bars (animated)
+        const scoreBars = document.getElementById('score-bars');
+        scoreBars.innerHTML = '';
+        results.scores.forEach((s, i) => {
+          const row = document.createElement('div');
+          row.className = 'flex items-center gap-3';
+          row.style.opacity = '0';
+          row.style.transform = 'translateY(4px)';
+          row.style.transition = `opacity 0.3s ease ${i * 0.12}s, transform 0.3s ease ${i * 0.12}s`;
+          const c = scoreColor(s.value);
+          row.innerHTML = `
+            <span class="text-gray-500 text-xs w-16 sm:w-24 text-right">${s.label}</span>
+            <div class="flex-1 h-4 bg-gray-800/50 rounded-sm overflow-hidden">
+              <div class="h-full rounded-sm transition-all duration-1000 ease-out" style="width: 0%; background: ${c};" data-target-width="${s.value}%"></div>
+            </div>
+            <span class="text-xs w-8" style="color: ${c}">${s.value}</span>
+          `;
+          scoreBars.appendChild(row);
+        });
+
+        // Roast
+        document.getElementById('result-roast').textContent = results.roast;
+
+        // Verdict
+        const verdictEl = document.getElementById('result-verdict');
+        verdictEl.textContent = results.verdict;
+        verdictEl.style.color = results.verdictColor;
+
+        // Probability
+        const probEl = document.getElementById('result-probability');
+        probEl.textContent = results.probability + '%';
+        probEl.style.color = results.verdictColor;
+        const probBar = document.getElementById('result-probability-bar');
+        probBar.style.width = '0%';
+        probBar.style.background = results.verdictColor + '99';
+
+        // Flags
+        const flagsEl = document.getElementById('result-flags');
+        flagsEl.innerHTML = '';
+        results.flags.forEach(f => {
+          const tag = document.createElement('span');
+          tag.className = 'inline-flex items-center px-2 py-0.5 rounded bg-red-500/10 border border-red-500/20 text-red-400 text-[10px] font-mono';
+          tag.textContent = f;
+          flagsEl.appendChild(tag);
+        });
+
+        // Show card
+        resultsCard.classList.remove('hidden');
+
+        // Trigger animations after paint
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            scoreBars.querySelectorAll('[data-target-width]').forEach(bar => {
+              bar.style.width = bar.dataset.targetWidth;
+            });
+            scoreBars.querySelectorAll('.flex.items-center').forEach(row => {
+              row.style.opacity = '1';
+              row.style.transform = 'translateY(0)';
+            });
+            probBar.style.width = results.probability + '%';
+          });
+        });
+
+        // Reset button
+        checkBtn.disabled = false;
+        btnText.textContent = 'Check Vibe';
+        btnSpinner.classList.add('hidden');
+      }
+
+      checkBtn?.addEventListener('click', runCheck);
+      urlInput?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') runCheck();
       });
+    })();
     </script>
 
     <!-- ═══════════════ HOW IT WORKS ═══════════════ -->
