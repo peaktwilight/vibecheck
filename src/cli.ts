@@ -1,10 +1,12 @@
 #!/usr/bin/env node
 
+import { writeFileSync } from "node:fs";
 import ora from "ora";
 import chalk from "chalk";
 import { captureScreenshots } from "./screenshot.js";
 import { analyzeScreenshot } from "./analyze.js";
 import { printScorecard } from "./scorecard.js";
+import { generateScorecard, extractDomain } from "./image.js";
 
 const url = process.argv[2];
 
@@ -50,6 +52,19 @@ async function run(): Promise<void> {
   }
 
   printScorecard(normalizedUrl, result);
+
+  // Generate and save PNG scorecard
+  try {
+    const domain = extractDomain(normalizedUrl);
+    const filename = `vibecheck-${domain}.png`;
+    const pngBuffer = generateScorecard(normalizedUrl, result);
+    writeFileSync(filename, pngBuffer);
+    console.log(chalk.dim(`  Scorecard saved to ./${filename}`));
+    console.log();
+  } catch (err) {
+    console.log(chalk.dim(`  (Could not generate scorecard image: ${(err as Error).message})`));
+    console.log();
+  }
 }
 
 run().catch((err: Error) => {
