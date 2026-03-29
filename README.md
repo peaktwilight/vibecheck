@@ -26,6 +26,8 @@ Vibecheck screenshots any website, sends it to Claude for brutal design analysis
 npx vibechecked https://your-site.com
 ```
 
+That's it. No install needed — `npx` downloads and runs it in one shot.
+
 ## Usage
 
 ```bash
@@ -114,6 +116,17 @@ Plus a **vibe-coded probability** meter — how likely someone prompted this int
 ## Shareable Scorecard
 
 Vibecheck generates a 1200x630 PNG scorecard (Twitter/OG image optimized) you can post when you want to publicly shame your competitor's landing page. Saved to `./vibecheck-{domain}.png`.
+
+## Development
+
+```bash
+git clone https://github.com/peaktwilight/vibecheck
+cd vibecheck
+npm install
+npx playwright install chromium
+npm run build
+node dist/cli.js https://your-app.vercel.app
+```
 
 ## Requirements
 

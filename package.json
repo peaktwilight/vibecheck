@@ -14,13 +14,22 @@
   "keywords": [
     "vibecheck",
     "ui",
+    "design",
     "roast",
     "vibe-coding",
-    "design",
-    "audit"
+    "cli",
+    "scorecard"
   ],
-  "author": "",
+  "author": "peaktwilight",
   "license": "MIT",
+  "homepage": "https://vibecheck.doruk.ch",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/peaktwilight/vibecheck"
+  },
+  "engines": {
+    "node": ">=18"
+  },
   "files": ["dist", "package.json", "README.md"],
   "dependencies": {
     "canvas": "^3.2.2",
