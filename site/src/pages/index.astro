@@ -24,58 +24,65 @@ const redFlags = [
 
 const roasts = [
   {
-    site: "supabase.com",
-    score: 30,
+    site: "vibechecked.doruk.ch",
+    label: "Us. We roasted ourselves.",
+    score: 49,
+    verdict: "KINDA MID",
+    probability: 68,
+    roast: "You built a tool to roast vibe-coded sites and then vibe-coded the landing page. It's like a barber with a bad haircut.",
+    scores: { originality: 62, layout: 35, typography: 58, color: 52 },
+    verdictColor: "#eab308",
+    selfRoast: true,
+  },
+  {
+    site: "generic-saas-template.vercel.app",
+    label: "Every SaaS template ever",
+    score: 18,
+    verdict: "VIBE-CODED CLONE",
+    probability: 95,
+    roast: "Purple gradient hero, glassmorphism pricing cards, 'Trusted by 10,000+ companies' with logos you've never heard of. This template has been forked 47,000 times and it shows.",
+    scores: { originality: 5, layout: 10, typography: 30, color: 15 },
+    verdictColor: "#ef4444",
+  },
+  {
+    site: "ai-wrapper-starter.netlify.app",
+    label: "The ChatGPT wrapper starter kit",
+    score: 22,
+    verdict: "VIBE-CODED CLONE",
+    probability: 92,
+    roast: "Dark mode, neon accent, chat interface on the right, 'Powered by AI' badge. You didn't build a product, you installed a template and changed the logo.",
+    scores: { originality: 10, layout: 15, typography: 35, color: 20 },
+    verdictColor: "#ef4444",
+  },
+  {
+    site: "my-side-project.vercel.app",
+    label: "Every indie hacker landing page",
+    score: 35,
     verdict: "GENERIC AF",
-    probability: 78,
-    roast: "Congrats, you built the exact same dark-mode SaaS landing page that every dev-tool startup has shipped since 2022. 'Build in a weekend, Scale to millions' — bold promise from a site that looks like it was built in a weekend using a template.",
-    scores: { originality: 32, layout: 15, typography: 45, color: 38 },
+    probability: 75,
+    roast: "Hero section with your face, 'I built this in a weekend' energy, three feature cards with Lucide icons, and a 'Star on GitHub' button that's doing all the emotional heavy lifting.",
+    scores: { originality: 25, layout: 20, typography: 45, color: 40 },
     verdictColor: "#f97316",
   },
   {
-    site: "vercel.com",
-    score: 50,
-    verdict: "KINDA MID",
-    probability: 45,
-    roast: "Vercel really said 'we're the AI Cloud' and then deployed the most classic Hero → CTA → scroll-to-oblivion layout known to mankind.",
-    scores: { originality: 62, layout: 35, typography: 55, color: 58 },
-    verdictColor: "#eab308",
+    site: "startup-landing.framer.app",
+    label: "The Framer template special",
+    score: 42,
+    verdict: "GENERIC AF",
+    probability: 60,
+    roast: "Beautiful animations, gorgeous typography, zero original thought. This is what happens when your entire design process is 'pick a Framer template and change the colors.'",
+    scores: { originality: 30, layout: 40, typography: 65, color: 35 },
+    verdictColor: "#f97316",
   },
   {
-    site: "notion.so",
-    score: 52,
-    verdict: "KINDA MID",
-    probability: 30,
-    roast: "Notion really said 'let's draw some clip-art coworkers with hard hats and lightbulbs so people forget we're a glorified spreadsheet.'",
-    scores: { originality: 62, layout: 35, typography: 68, color: 55 },
-    verdictColor: "#eab308",
-  },
-  {
-    site: "stripe.com",
-    score: 65,
-    verdict: "MOSTLY FRESH",
-    probability: 25,
-    roast: "Stripe's site is the final boss of 'Hero → Logos → Features' SaaS layout, but at least it has the budget to make it look expensive.",
-    scores: { originality: 72, layout: 45, typography: 78, color: 74 },
-    verdictColor: "#86efac",
-  },
-  {
-    site: "tailwindcss.com",
-    score: 68,
-    verdict: "MOSTLY FRESH",
-    probability: 18,
-    roast: "Tailwind's homepage is the web equivalent of a carpenter whose house is made of IKEA furniture — you built the tool that powers a million generic sites, yet your own layout is just Hero → Code Demo → Footer.",
-    scores: { originality: 72, layout: 55, typography: 78, color: 65 },
-    verdictColor: "#86efac",
-  },
-  {
-    site: "linear.app",
-    score: 69,
-    verdict: "MOSTLY FRESH",
-    probability: 25,
-    roast: "Linear said 'we're not like other project management tools' and then built the most tastefully dark-mode developer tool landing page you've ever seen — gorgeous, but it's becoming its own genre.",
-    scores: { originality: 72, layout: 58, typography: 78, color: 65 },
-    verdictColor: "#86efac",
+    site: "hand-crafted-portfolio.dev",
+    label: "The rare handcrafted site",
+    score: 88,
+    verdict: "CERTIFIED ORIGINAL",
+    probability: 5,
+    roast: "Wait — someone actually designed this themselves? Custom layout, thoughtful color choices, typography that wasn't picked by an AI. We didn't think these existed anymore.",
+    scores: { originality: 92, layout: 85, typography: 90, color: 82 },
+    verdictColor: "#22c55e",
   },
 ];
 
@@ -684,15 +691,21 @@ const verdicts = [
           Hall of <span class="text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-orange-500">roasts</span>
         </h2>
         <p class="text-gray-500 text-center mb-12 max-w-lg mx-auto">
-          We roasted billion-dollar companies. They scored worse than you'd think.
+          We roasted ourselves and the templates everyone uses. Real scores. Real shame.
         </p>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {roasts.map(r => (
-            <div class="group border border-gray-800 rounded-xl bg-[#111] p-5 hover:border-gray-700 transition-all duration-300">
+            <div class="group relative border border-gray-800 rounded-xl bg-[#111] p-5 hover:border-gray-700 transition-all duration-300">
+              {r.selfRoast && (
+                <span class="absolute top-3 right-3 text-[10px] font-mono text-green-accent bg-green-accent/10 px-2 py-0.5 rounded-full">self-roast</span>
+              )}
               <!-- Header -->
               <div class="flex items-center justify-between mb-3">
-                <span class="font-mono text-sm text-gray-300">{r.site}</span>
+                <div class="flex flex-col">
+                  <span class="font-mono text-sm text-gray-300">{r.site}</span>
+                  {r.label && <span class="text-[10px] text-gray-600 font-mono">{r.label}</span>}
+                </div>
                 <span class="font-mono text-2xl font-black" style={`color: ${r.verdictColor}`}>{r.score}</span>
               </div>
 
@@ -720,12 +733,8 @@ const verdicts = [
           ))}
         </div>
 
-        <p class="text-center mt-6 text-gray-700 text-xs font-mono italic">
-          These are all amazing products. Their landing pages just follow the same template as everyone else. That's the joke.
-        </p>
-
         <p class="text-center mt-8 text-gray-600 text-sm font-mono">
-          Think your site would score higher? <a href="https://github.com/peaktwilight/vibechecked" class="text-green-accent hover:underline">Run vibechecked</a> and find out.
+          Think your site would beat a template? <a href="https://github.com/peaktwilight/vibechecked" class="text-green-accent hover:underline">Run vibechecked</a> and find out.
         </p>
       </div>
     </section>
