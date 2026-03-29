@@ -125,7 +125,7 @@ Plus a **vibe-coded probability** meter — how likely someone prompted this int
 
 ## Shareable Scorecard
 
-Vibecheck generates a 1200x630 PNG scorecard (Twitter/OG image optimized) you can post when you want to publicly shame your competitor's landing page. Saved to `./vibecheck-{domain}.png`.
+Vibechecked generates a 1200x630 PNG scorecard (Twitter/OG image optimized) you can post when you want to publicly shame your competitor's landing page. Saved to `./vibechecked-{domain}.png`.
 
 ## Development
 
