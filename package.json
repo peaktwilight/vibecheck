@@ -1,0 +1,27 @@
+{
+  "name": "vibecheck",
+  "version": "0.1.0",
+  "description": "Paste a URL, get a UI roast. Detect if your app looks like every other vibe-coded project.",
+  "type": "module",
+  "bin": {
+    "vibecheck": "./src/cli.js"
+  },
+  "scripts": {
+    "start": "node src/cli.js"
+  },
+  "keywords": [
+    "vibecheck",
+    "ui",
+    "roast",
+    "vibe-coding",
+    "design",
+    "audit"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^5.6.2",
+    "ora": "^9.3.0",
+    "playwright": "^1.58.2"
+  }
+}
