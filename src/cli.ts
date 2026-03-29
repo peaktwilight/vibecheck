@@ -102,8 +102,8 @@ async function runCompare(url1: string, url2: string): Promise<void> {
 
   try {
     const [site1, site2] = await Promise.all([
-      captureAndAnalyze(url1),
-      captureAndAnalyze(url2),
+      captureAndAnalyze(url1, roastMode),
+      captureAndAnalyze(url2, roastMode),
     ]);
     spinner.succeed("Both sites analyzed");
 
@@ -117,6 +117,13 @@ async function runCompare(url1: string, url2: string): Promise<void> {
     }
 
     printComparison(site1.url, site1.result, site2.url, site2.result);
+
+    if (trackMode) {
+      saveResult(site1.url, site1.result);
+      saveResult(site2.url, site2.result);
+      console.log(chalk.dim(`  Scores saved for both sites. Run vibecheck --history <domain> to see trends.`));
+      console.log();
+    }
   } catch (err) {
     spinner.fail(`Comparison failed: ${(err as Error).message}`);
     process.exit(1);
@@ -165,7 +172,7 @@ async function runBatch(positional: string[]): Promise<void> {
   async function processUrl(rawUrl: string): Promise<void> {
     const normalizedUrl = rawUrl.startsWith("http") ? rawUrl : `https://${rawUrl}`;
     try {
-      const { url, result } = await captureAndAnalyze(rawUrl);
+      const { url, result } = await captureAndAnalyze(rawUrl, roastMode);
       entries.push({ url, result });
     } catch (err) {
       entries.push({ url: normalizedUrl, error: (err as Error).message });
@@ -198,6 +205,15 @@ async function runBatch(positional: string[]): Promise<void> {
   }
 
   printLeaderboard(entries);
+
+  if (trackMode) {
+    const successful = entries.filter(e => !!e.result);
+    for (const entry of successful) {
+      saveResult(entry.url, entry.result!);
+    }
+    console.log(chalk.dim(`  Scores saved for ${successful.length} site${successful.length !== 1 ? "s" : ""}. Run vibecheck --history <domain> to see trends.`));
+    console.log();
+  }
 }
 
 async function runSingle(normalizedUrl: string): Promise<void> {

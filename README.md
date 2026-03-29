@@ -17,6 +17,11 @@ Vibecheck screenshots any website, uses AI for brutal design analysis, and score
 - **5 scoring dimensions** — Originality, Layout, Typography, Color, Overall
 - **11 red flags** detected (purple gradients, glassmorphism, generic SaaS patterns...)
 - **`--compare url1 url2`** — head-to-head comparison mode
+- **`--batch <url1> <url2> ...`** or **`--batch urls.txt`** — multi-URL leaderboard
+- **`--roast`** — extra savage roast mode
+- **`--track`** — save score to history
+- **`--history <url>`** — show score trends over time
+- **`--no-ai`** — heuristic mode, no AI needed
 - **`--json`** — machine-readable JSON output
 - **Shareable PNG scorecard** — 1200x630, Twitter/OG-optimized, saved automatically
 
@@ -46,6 +51,20 @@ npx vibechecked https://my-app.vercel.app
 
 # Compare two sites head-to-head
 npx vibechecked --compare vercel.com linear.app
+
+# Batch mode — analyze multiple URLs and get a leaderboard
+npx vibechecked --batch vercel.com linear.app stripe.com
+npx vibechecked --batch urls.txt
+
+# Extra savage roast mode
+npx vibechecked --roast https://ugly-site.com
+
+# Save score to history and view trends
+npx vibechecked --track https://my-app.com
+npx vibechecked --history my-app.com
+
+# Heuristic mode (no AI needed)
+npx vibechecked --no-ai https://my-app.com
 
 # JSON output (pipe it, parse it, automate it)
 npx vibechecked --json https://example.com
@@ -125,7 +144,7 @@ Plus a **vibe-coded probability** meter — how likely someone prompted this int
 
 ## Shareable Scorecard
 
-Vibechecked generates a 1200x630 PNG scorecard (Twitter/OG image optimized) you can post when you want to publicly shame your competitor's landing page. Saved to `./vibechecked-{domain}.png`.
+Vibechecked generates a 1200x630 PNG scorecard (Twitter/OG image optimized) you can post when you want to publicly shame your competitor's landing page. Saved to `./vibecheck-{domain}.png`.
 
 ## CI / GitHub Action
 
@@ -180,17 +199,6 @@ jobs:
     uses: peaktwilight/vibechecked/.github/workflows/vibecheck.yml@main
     with:
       url: ${{ needs.deploy.outputs.preview_url }}
-```
-
-## Development
-
-```bash
-git clone https://github.com/peaktwilight/vibecheck
-cd vibecheck
-npm install
-npx playwright install chromium
-npm run build
-node dist/cli.js https://your-app.vercel.app
 ```
 
 ## Requirements

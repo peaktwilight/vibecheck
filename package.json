@@ -22,10 +22,10 @@
   ],
   "author": "peaktwilight",
   "license": "MIT",
-  "homepage": "https://vibecheck.doruk.ch",
+  "homepage": "https://vibechecked.doruk.ch",
   "repository": {
     "type": "git",
-    "url": "https://github.com/peaktwilight/vibecheck"
+    "url": "https://github.com/peaktwilight/vibechecked"
   },
   "engines": {
     "node": ">=18"

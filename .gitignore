@@ -5,3 +5,4 @@ dist/
 .DS_Store
 site/dist/
 site/node_modules/
+vibecheck-*.png
