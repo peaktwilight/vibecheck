@@ -228,6 +228,10 @@ node dist/cli.js https://your-app.vercel.app
 
 This entire tool was vibe-coded in a few hours. The irony is fully intentional.
 
+---
+
+*Built by [Peak Twilight](https://doruk.ch) -- also building [pwnkit](https://pwnkit.com), [FoxGuard](https://foxguard.dev), [unfuck](https://unfcked.doruk.ch), [whatdiditdo](https://whatdiditdo.doruk.ch)*
+
 ## License
 
 MIT
